@@ -22,8 +22,6 @@
 
 Associate users with roles and permissions
 
-## Features
-
 ## Installation
 
 ```bash
