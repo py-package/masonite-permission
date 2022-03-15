@@ -10,8 +10,19 @@ class HasRoles:
     def roles(self):
         """User can have multiple roles"""
         from ..models.role import Role
-
         return Role
+    
+    def permissions(self):
+        """User can have multiple permissions"""
+        from ..models.permission import Permission
+        
+        roles = self.roles.pluck('id')
+        return (
+            Permission.join("permission_role as pr", "pr.permission_id", "=", "id")
+            .where_in("pr.role_id", roles)
+            .select_raw("permissions.*")
+            .get()
+        )
 
     def has_role(self, role):
         """Check if user has a role"""

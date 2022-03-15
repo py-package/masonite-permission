@@ -54,28 +54,109 @@ Then you can publish the package resources (if needed) by doing:
 python craft package:publish masonite-permission
 ```
 
-## Usage
+Finally, extend `User` model class with `HasRoles`.
 
 ```python
-""" Permission Syncing """
-permissions = Permission.all()
-role.sync_permissions(permissions) # sync permissions to role
-role.sync_permissions([]) # remove all permissions from role
+from masoniteorm.models import Model
+from masoniteorm.scopes import SoftDeletesMixin
+from masonite.authentication import Authenticates
+from masonite_permission.models.has_roles import HasRoles
+
+class User(Model, SoftDeletesMixin, Authenticates, HasRoles):
+    """User Model."""
+
+    __fillable__ = ["name", "email", "password"]
+    __hidden__ = ["password"]
+    __auth__ = "email"
+```
+
+## Usage
+
+**Role**
+Methods that can be used in role model object:
+
+```python
+""" collection can be synced """
+permission_collection = Permission.all()
+role = Role.find(1)
+
+role.sync_permissions(permission_collection)
+
+""" id will also work """
+permission_ids = [1,2,3,4,5]
+role.sync_permissions(permission_ids)
+
+""" clear related data """
+role.sync_permissions([])
+
 
 """ Attach/Detatch Permission """
 permission = Permission.first()
 role.attach_permission(permission) # add permission to role, ignores if permission already exists
 role.detach_permission(permission) # remove permission from role, ignores if permission doesn't exist
 
-""" Role Syncing """
-roles = Role.all()
-permission.sync_roles(roles) # sync roles to role
-permissioin.sync_roles([]) # remove all roles from role
+""" this can also be done """
+role.attach_permission(1) # passing permission id instead of object, ignores if permission already exists
+role.detatch_permission(1) # passing permission id instead of object, ignores if permission doesn't exist
+```
+
+**Permission**
+Methods that can be used in permission model object:
+
+```python
+""" collection can be synced """
+roles_collection = Role.all()
+permission = Permission.find(1)
+
+permission.sync_roles(role_collection)
+
+""" id will also work """
+role_ids = [1,2,3,4,5]
+permission.sync_roles(role_ids)
+
+""" clear related data """
+permissioin.sync_roles([])
+
 
 """ Attach/Detatch Role """
 role = Role.first()
 permission.attach_role(role) # add role to permission, ignores if role already exists
 permission.detach_role(role) # remove role from permission, ignores if role doesn't exist
+
+""" this can also be done """
+permission.attach_role(1) # passing role id instead of object, ignores if role already exists
+permission.detatch_role(1) # passing role id instead of object, ignores if role doesn't exist
+```
+
+**User**
+Methods that can be used in user model object:
+
+```python
+user = User.first()
+
+# Add/Remove single role
+role = Role.first()
+
+user.attach_role(role) # or you can pass role id
+user.detatch_role(role) # or you can pass role id
+
+# if you want to add multiple roles
+roles = Role.all()
+
+user.sync_roles(roles) # or you can also pass list of ids...
+
+# remove all roles from user at once
+user.sync_roles([])
+
+# check if user has role
+user.has_role("role-slug") # returns boolean
+
+# check if user has any of the roles
+user.has_any_role(["role-1", "role-2"]) # returns boolean
+
+# check if user has all of the roles
+user.has_all_roles(["role-1", "role-2"]) # returns boolean
+
 ```
 
 ## Contributing
@@ -89,3 +170,7 @@ Please read the [Contributing Documentation](CONTRIBUTING.md) here.
 ## License
 
 Masonite Permission is open-sourced software licensed under the [MIT license](LICENSE).
+
+```
+
+```
