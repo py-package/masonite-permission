@@ -2,9 +2,9 @@
 from masonite.views import View
 from masonite.controllers import Controller
 
-from masoniteorm.query import QueryBuilder
-from src.masonite_permission.models.permission import Permission
-from src.masonite_permission.models.role import Role
+# from masoniteorm.query import QueryBuilder
+# from src.masonite_permission.models.permission import Permission
+# from src.masonite_permission.models.role import Role
 from tests.integrations.app.models.User import User
 
 
@@ -64,8 +64,8 @@ class WelcomeController(Controller):
         """
 
         user = User.first()
-        role = Role.where("slug", "admin").first()
-        permission = Permission.where("slug", "create-user").first()
+        # role = Role.where("slug", "admin").first()
+        # permission = Permission.where("slug", "create-user").first()
 
         """Role related methods
         Methods:

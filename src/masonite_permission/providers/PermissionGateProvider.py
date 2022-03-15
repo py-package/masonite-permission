@@ -1,5 +1,4 @@
 from masonite.providers import Provider
-from masonite.facades import Gate
 
 
 class PermissionGateProvider(Provider):
