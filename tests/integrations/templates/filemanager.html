@@ -1,0 +1,118 @@
+<form>
+    <file-picker name="profile-image"></file-picker>
+    <button type="submit">Submit</button>
+</form>
+<script>
+    let fileManagerWindow = null;
+
+    class FilePicker extends HTMLElement {
+        static formAssociated = true;
+        static observedAttributes = ['disabled', 'placeholder'];
+
+        constructor() {
+            super();
+            // Get access to the internal form control APIs
+            this.internals_ = this.attachInternals();
+            this.attachShadow({ mode: 'open', delegatesFocus: true });
+
+            this.shadowRoot.innerHTML = `
+                <style>
+                :host {}
+                :host(:invalid) {}
+                input {}
+                </style>
+                <input>
+            `;
+
+            this.input_ = this.shadowRoot.querySelector('input');
+            this.input_.addEventListener('input', () => this.onInput());
+            this.input_.addEventListener('change', () => this.onChange());
+            this.setAttribute('tabindex', 0);
+
+            // Do something if <label> is clicked.
+            // this.addEventListener('click', () => { this.input_.focus(); });
+
+            this.addEventListener('click', () => {
+                fileManagerWindow = window.open('/filemanager', 'FileManager', "popup");
+            });
+        }
+
+        // Called whenever the value is updated.
+        onInput() {
+            if (!this.matches(':disabled') && this.hasAttribute('required') &&
+                this.value.length < 5)
+                this.internals_.setValidity({ customError: true }, 'Use at least 5 characters.',);
+            else
+                this.internals_.setValidity({});
+            this.internals_.setFormValue(this.value);
+        }
+
+        onChange(a) {
+            console.log(a);
+        }
+
+        // New lifecycle callback. This is called when association with
+        // <form> is changed.
+        formAssociatedCallback(nullableForm) {
+            console.log('Form associated.');
+        }
+
+        // New lifecycle callback. This is called when ‘disabled’ attribute of
+        // this element or an ancestor <fieldset> is updated.
+        formDisabledCallback(disabled) {
+            // Do something.  e.g. adding/removing ‘disabled’ content attributes
+            // to/from form controls in this shadow tree.
+            if (disabled) {
+                console.log('is disabled');
+            }
+        }
+
+        // New lifecycle callback. This is called when the owner form is reset.
+        formResetCallback() {
+            this.value = this.getAttribute('value') || '';
+            this.onInput();
+        }
+
+        // New lifecycle callback. This is called when the browser wants to
+        // restore user-visible state.
+        formStateRestoreCallback(state, mode) {
+            this.value = state;
+            this.onInput();
+        }
+
+        get form() { return this.internals_.form; }
+
+        get name() { return this.getAttribute('name') };
+
+        get type() { return this.localName; }
+
+        // Form controls usually expose a "value"  property
+        get value() { return this.input_.value; }
+        set value(v) { this.input_.value = v; }
+
+        get validity() { return this.internals_.validity; }
+        get validationMessage() { return this.internals_.validationMessage; }
+        get willValidate() { return this.internals_.willValidate; }
+
+        checkValidity() { return this.internals_.checkValidity(); }
+        reportValidity() { return this.internals_.reportValidity(); }
+
+        // Standard custom element callback
+        // Here, we forward values like placeholder and disabled
+        // to the internal input
+        attributeChangedCallback(name, oldValue, newValue) {
+            this.input_[name] = newValue;
+        }
+
+        sendMessage(url) {
+            // set value for custom element
+            this.input_.value = url;
+            this.input_.dispatchEvent(new Event('click'));
+            fileManagerWindow.close();
+        }
+    }
+
+    customElements.define('file-picker', FilePicker);
+    window.fpicker = new FilePicker();
+
+</script>
