@@ -7,6 +7,7 @@ from masonite.controllers import Controller
 # from src.masonite_permission.models.role import Role
 # from tests.integrations.app.models.User import User
 
+
 class WelcomeController(Controller):
     """WelcomeController Controller Class."""
 
@@ -14,7 +15,7 @@ class WelcomeController(Controller):
         return view.render("welcome")
 
     def test(self):
-        """ users = [{
+        """users = [{
             "name": "John Doe",
             "email": "john@doe.com",
             "password": "capslock",
@@ -61,7 +62,7 @@ class WelcomeController(Controller):
 
         user = User.first()
         role = Role.where("slug", "admin").first()
-        permission = Permission.where("slug", "create-user").first() """
+        permission = Permission.where("slug", "create-user").first()"""
 
         """Role related methods
         Methods:

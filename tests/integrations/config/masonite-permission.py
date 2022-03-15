@@ -8,4 +8,3 @@
 | A quick description
 |
 """
-
