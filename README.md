@@ -73,12 +73,18 @@ class User(Model, SoftDeletesMixin, Authenticates, HasRoles):
 ## Usage
 
 **Role**
+
 Methods that can be used in role model object:
 
 ```python
+""" Creating Role """
+role = Role.create({
+  "name": "Admin",
+  "slug": "admin" # must be unique
+})
+
 """ collection can be synced """
 permission_collection = Permission.all()
-role = Role.find(1)
 
 role.sync_permissions(permission_collection)
 
@@ -101,12 +107,18 @@ role.detatch_permission(1) # passing permission id instead of object, ignores if
 ```
 
 **Permission**
+
 Methods that can be used in permission model object:
 
 ```python
+""" Creating Permission """
+permission = Permission.create({
+  "name": "Create Post",
+  "slug": "create-post" # must be unique
+})
+
 """ collection can be synced """
 roles_collection = Role.all()
-permission = Permission.find(1)
 
 permission.sync_roles(role_collection)
 
@@ -129,6 +141,7 @@ permission.detatch_role(1) # passing role id instead of object, ignores if role 
 ```
 
 **User**
+
 Methods that can be used in user model object:
 
 ```python
@@ -137,8 +150,8 @@ user = User.first()
 # Add/Remove single role
 role = Role.first()
 
-user.attach_role(role) # or you can pass role id
-user.detatch_role(role) # or you can pass role id
+user.assign_role(role) # or you can pass role id
+user.remove_role(role) # or you can pass role id
 
 # if you want to add multiple roles
 roles = Role.all()
@@ -149,7 +162,7 @@ user.sync_roles(roles) # or you can also pass list of ids...
 user.sync_roles([])
 
 # check if user has role
-user.has_role("role-slug") # returns boolean
+user.has_role("role-1") # returns boolean
 
 # check if user has any of the roles
 user.has_any_role(["role-1", "role-2"]) # returns boolean
@@ -157,6 +170,67 @@ user.has_any_role(["role-1", "role-2"]) # returns boolean
 # check if user has all of the roles
 user.has_all_roles(["role-1", "role-2"]) # returns boolean
 
+# check if user has permission
+user.has_permission("permission-1") # returns boolean
+
+# check if user has any of the permissions
+user.has_any_permission(["permission-1", "permission-2"]) # returns boolean
+
+# check if user has all of the permissions
+user.has_all_permissions(["permission-1", "permission-2"]) # returns boolean
+
+```
+
+## Using in Template
+
+**In case of Roles**
+Checking if user has role.
+
+```jinja2
+{% if user.is_("admin") %}
+    <p>You are an admin</p>
+{% endif %}
+```
+
+Checking if user has any of the roles
+
+```jinja2
+{% if user.is_("admin|editor|truck-driver") %}
+    <p>You can be either admin, editor, truck driver or all of those</p>
+{% endif %}
+```
+
+Checking if user has all of the roles
+
+```jinja2
+{% if user.is_("admin,editor,truck-driver") %}
+    <p>You are an admin, editor and also truck-driver</p>
+{% endif %}
+```
+
+**In case of Permissions**
+Checking if user can do {permission}.
+
+```jinja2
+{% if user.can_("edit-post") %}
+    <p>You can edit post</p>
+{% endif %}
+```
+
+Checking if user can do any one or more of the {permissions}
+
+```jinja2
+{% if user.can_("edit-post|delete-post") %}
+    <p>You can either edit-post, delete-post or both.</p>
+{% endif %}
+```
+
+Checking if user can do all of the {permissions}
+
+```jinja2
+{% if user.can_("edit-post,delete-post") %}
+    <p>You can edit post and also delete post.</p>
+{% endif %}
 ```
 
 ## Contributing

@@ -12,7 +12,9 @@ class WelcomeController(Controller):
     """WelcomeController Controller Class."""
 
     def show(self, view: View):
-        return view.render("welcome")
+        user = User.first()
+
+        return view.render("welcome", {"user": user})
 
     def test(self):
         """users = [{
@@ -84,8 +86,8 @@ class WelcomeController(Controller):
 
         Methods:
             user.sync_roles([role])
-            user.attach_role(role)
-            user.detatch_role(role)
+            user.assign_role(role)
+            user.remove_role(role)
             user.has_role(role)
             user.has_any_role(roles)
             user.has_all_roles(roles)
@@ -93,4 +95,5 @@ class WelcomeController(Controller):
         # role.sync_permissions(Permission.all())
         # return role.permissions
         # user.attach_role(role)
-        return user.permissions().pluck('name')
+        return user.roles
+        return {"result": user.roles}

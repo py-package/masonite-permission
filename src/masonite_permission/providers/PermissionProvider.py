@@ -2,6 +2,8 @@
 
 from masonite.packages import PackageProvider
 
+from ..masonite_permission import MasonitePermission
+
 
 class PermissionProvider(PackageProvider):
     def configure(self):
