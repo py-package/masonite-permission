@@ -42,7 +42,7 @@ class Role(Model):
         if not exists:
             self.attach("permissions", permission)
 
-    def detatch_permission(self, permission):
+    def detach_permission(self, permission):
         """Detach a permission from a role
 
         Arguments:

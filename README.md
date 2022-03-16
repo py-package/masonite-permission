@@ -109,7 +109,7 @@ role = Role.create({
             arguments: Takes a list of permission ids or permission collection
         2. attach_permission: Adds a permission to a role
             arguments: Takes permission model object or permission id
-        3. detatch_permission: Removes a permission from the role
+        3. detach_permission: Removes a permission from the role
             arguments: Takes permission model object or permission id
 """
 ```

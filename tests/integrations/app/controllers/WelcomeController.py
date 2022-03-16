@@ -71,7 +71,7 @@ class WelcomeController(Controller):
         Methods:
             role.sync_permissions([permission])
             role.attach_permission(permission)
-            role.detatch_permission(permission)
+            role.detach_permission(permission)
         """
 
         """Permission related methods
@@ -79,7 +79,7 @@ class WelcomeController(Controller):
         Methods:
             permission.sync_roles([role])
             permission.attach_role(role)
-            permission.detatch_role(role)
+            permission.detach_role(role)
         """
 
         """User related methods
