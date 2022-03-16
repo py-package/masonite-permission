@@ -94,7 +94,7 @@ class HasRoles:
         if not exists:
             self.attach("roles", role)
 
-    def remove_role(self, role):
+    def revoke_role(self, role):
         """Detach a role from a user
 
         Arguments:

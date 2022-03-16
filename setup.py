@@ -18,7 +18,7 @@ setup(
         "masonite_permission.providers"
     ],
     package_dir={"": "src"},
-    description="File management solution for Masonite",
+    description="Associate users with roles and permissions",
     long_description=long_description,
     long_description_content_type="text/markdown",
     # The project's main homepage.

@@ -11,6 +11,8 @@ class Permission(Model):
 
     __primary_key__ = "id"
 
+    __fillable__ = ["name", "slug"]
+
     @belongs_to_many("permission_id", "role_id", "id", "id")
     def roles(self):
         """Permission can be in multiple roles"""
