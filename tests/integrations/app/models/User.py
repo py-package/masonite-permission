@@ -2,7 +2,7 @@
 from masoniteorm.models import Model
 from masoniteorm.scopes import SoftDeletesMixin
 from masonite.authentication import Authenticates
-from src.masonite_permission.models.has_roles import HasRoles
+from src.masonite_permission.mixins.has_roles import HasRoles
 
 
 class User(Model, SoftDeletesMixin, Authenticates, HasRoles):

@@ -8,7 +8,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version="0.1.3",
+    version="0.1.4",
     packages=[
         "masonite_permission",
         "masonite_permission.config",
@@ -18,7 +18,7 @@ setup(
         "masonite_permission.providers"
     ],
     package_dir={"": "src"},
-    description="File management solution for Masonite",
+    description="Associate users with roles and permissions",
     long_description=long_description,
     long_description_content_type="text/markdown",
     # The project's main homepage.

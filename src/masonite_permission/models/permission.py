@@ -11,6 +11,8 @@ class Permission(Model):
 
     __primary_key__ = "id"
 
+    __fillable__ = ["name", "slug"]
+
     @belongs_to_many("permission_id", "role_id", "id", "id")
     def roles(self):
         """Permission can be in multiple roles"""
@@ -40,7 +42,7 @@ class Permission(Model):
         if not exists:
             self.attach("roles", role)
 
-    def detatch_role(self, role):
+    def detach_role(self, role):
         """Detach a role from a permission
 
         Arguments:

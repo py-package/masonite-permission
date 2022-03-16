@@ -18,6 +18,7 @@ lint: ## Run code linting
 	python -m flake8 .
 format: ## Format code with Black
 	black src
+	black tests
 coverage: ## Run package tests and upload coverage reports
 	python -m pytest --cov-report term --cov-report xml --cov=src/masonite/masonite_permission tests
 publish: ## Publish package to pypi

@@ -4,7 +4,7 @@ from masonite.controllers import Controller
 
 # from masoniteorm.query import QueryBuilder
 # from src.masonite_permission.models.permission import Permission
-# from src.masonite_permission.models.role import Role
+from src.masonite_permission.models import Role
 from tests.integrations.app.models.User import User
 
 
@@ -71,7 +71,7 @@ class WelcomeController(Controller):
         Methods:
             role.sync_permissions([permission])
             role.attach_permission(permission)
-            role.detatch_permission(permission)
+            role.detach_permission(permission)
         """
 
         """Permission related methods
@@ -79,7 +79,7 @@ class WelcomeController(Controller):
         Methods:
             permission.sync_roles([role])
             permission.attach_role(role)
-            permission.detatch_role(role)
+            permission.detach_role(role)
         """
 
         """User related methods
@@ -87,11 +87,17 @@ class WelcomeController(Controller):
         Methods:
             user.sync_roles([role])
             user.assign_role(role)
-            user.remove_role(role)
+            user.revoke_role(role)
             user.has_role(role)
             user.has_any_role(roles)
             user.has_all_roles(roles)
         """
+
+        # Role.create({
+        #     "name": "Driver",
+        #     "slug": "driver",
+        # })
+        return Role.all()
         # role.sync_permissions(Permission.all())
         # return role.permissions
         # user.attach_role(role)
