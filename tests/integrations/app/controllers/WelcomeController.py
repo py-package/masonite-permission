@@ -5,14 +5,16 @@ from masonite.controllers import Controller
 # from masoniteorm.query import QueryBuilder
 # from src.masonite_permission.models.permission import Permission
 # from src.masonite_permission.models.role import Role
-# from tests.integrations.app.models.User import User
+from tests.integrations.app.models.User import User
 
 
 class WelcomeController(Controller):
     """WelcomeController Controller Class."""
 
     def show(self, view: View):
-        return view.render("welcome")
+        user = User.first()
+
+        return view.render("welcome", {"user": user})
 
     def test(self):
         """users = [{
@@ -59,10 +61,11 @@ class WelcomeController(Controller):
         QueryBuilder().table("users").bulk_create(users)
         QueryBuilder().table("roles").bulk_create(roles)
         QueryBuilder().table("permissions").bulk_create(permissions)
+        """
 
         user = User.first()
-        role = Role.where("slug", "admin").first()
-        permission = Permission.where("slug", "create-user").first()"""
+        # role = Role.where("slug", "admin").first()
+        # permission = Permission.where("slug", "create-user").first()
 
         """Role related methods
         Methods:
@@ -83,11 +86,14 @@ class WelcomeController(Controller):
 
         Methods:
             user.sync_roles([role])
-            user.attach_role(role)
-            user.detatch_role(role)
+            user.assign_role(role)
+            user.remove_role(role)
             user.has_role(role)
             user.has_any_role(roles)
             user.has_all_roles(roles)
         """
-
-        return "OK"
+        # role.sync_permissions(Permission.all())
+        # return role.permissions
+        # user.attach_role(role)
+        return user.roles
+        return {"result": user.roles}

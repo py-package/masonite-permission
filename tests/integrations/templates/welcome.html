@@ -5,7 +5,15 @@
 <div class="h-screen flex flex-col items-center justify-center">
   <img src="/logo.png" alt="Masonite Logo" class="h-16 w-16 mb-4">
   <div class="text-gray-500 text-5xl mb-10 tracking-wide">
-    Masonite 4
+    Masonite 4 {{ user.can_('create-post,delete-post') }}
+    {% if user.has_role("admin") %}
+    <p>You are an admin</p>
+    {% endif %}
+
+    {% if user.is_("admin") %}
+    <p>You are an admin</p>
+    {% endif %}
+
   </div>
 
   <nav class="flex space-x-4 justify-center text-gray-500 uppercase text-sm">

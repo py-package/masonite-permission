@@ -13,6 +13,18 @@ class HasRoles:
 
         return Role
 
+    def permissions(self):
+        """User can have multiple permissions"""
+        from ..models.permission import Permission
+
+        roles = self.roles.pluck("id")
+        return (
+            Permission.join("permission_role as pr", "pr.permission_id", "=", "id")
+            .where_in("pr.role_id", roles)
+            .select_raw("permissions.*")
+            .get()
+        )
+
     def has_role(self, role):
         """Check if user has a role"""
         if type(role) != str:
@@ -60,7 +72,7 @@ class HasRoles:
         QueryBuilder().table("role_user").where("user_id", self.id).delete()
         self.save_many("roles", roles)
 
-    def attach_role(self, role):
+    def assign_role(self, role):
         """Assign a role to a user
 
         Arguments:
@@ -82,7 +94,7 @@ class HasRoles:
         if not exists:
             self.attach("roles", role)
 
-    def detatch_role(self, role):
+    def remove_role(self, role):
         """Detach a role from a user
 
         Arguments:
@@ -103,3 +115,81 @@ class HasRoles:
 
         if exists:
             self.detach("roles", role)
+
+    def has_permission(self, permission):
+        """Check if user has a permission"""
+        if type(permission) != str:
+            raise PermissionException("permission must be a string!")
+
+        return self.permissions().pluck("slug").contains(permission)
+
+    def has_any_permission(self, permissions):
+        """Check if user has any of the permissions"""
+        from ..models.permission import Permission
+
+        if type(permissions) != Collection and type(permissions) != list:
+            raise PermissionException(
+                "argument must be a collection of permissions or list of permission ids!"
+            )
+
+        if len(permissions) != 0:
+            permission = permissions[0]
+            if isinstance(permission, str):
+                permissions = Permission.where_in("slug", permissions).get().pluck("slug")
+
+        slugs = set(self.permissions().pluck("slug"))
+
+        return len(slugs.intersection(permissions)) > 0
+
+    def has_all_permissions(self, permissions):
+        """Check if user has all of the permissions"""
+
+        if permissions is None or len(permissions) == 0 or type(permissions) != list:
+            raise PermissionException("permissions must be list of permission slugs!")
+
+        slugs = self.permissions().pluck("slug")
+        return set(permissions).issubset(slugs) and len(set(permissions) - set(slugs)) == 0
+
+    def can_(self, permissions):
+        """Check if user has a permission"""
+        if type(permissions) != str:
+            raise PermissionException("permission must be a string!")
+
+        action = "all"  # can be all or any
+
+        # check if permissions contains a comma
+        if "," in permissions:
+            permissions = permissions.split(",")
+        elif "|" in permissions:
+            action = "any"
+            permissions = permissions.split("|")
+        else:
+            permissions = [permissions]
+
+        if action == "all":
+            return self.has_all_permissions(permissions)
+
+        if action == "any":
+            return self.has_any_permission(permissions)
+
+    def is_(self, roles):
+        """Check if user has a role"""
+        if type(roles) != str:
+            raise PermissionException("role must be a string!")
+
+        action = "all"  # can be all or any
+
+        # check if permissions contains a comma
+        if "," in roles:
+            roles = roles.split(",")
+        elif "|" in roles:
+            action = "any"
+            roles = roles.split("|")
+        else:
+            roles = [roles]
+
+        if action == "all":
+            return self.has_all_roles(roles)
+
+        if action == "any":
+            return self.has_any_role(roles)
