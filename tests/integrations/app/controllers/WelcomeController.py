@@ -2,8 +2,8 @@
 from masonite.views import View
 from masonite.controllers import Controller
 
-# from masoniteorm.query import QueryBuilder
-# from src.masonite_permission.models.permission import Permission
+from masoniteorm.query import QueryBuilder
+from src.masonite_permission.models.permission import Permission
 from src.masonite_permission.models import Role
 from tests.integrations.app.models.User import User
 
@@ -17,89 +17,60 @@ class WelcomeController(Controller):
         return view.render("welcome", {"user": user})
 
     def test(self):
-        """users = [{
-            "name": "John Doe",
-            "email": "john@doe.com",
-            "password": "capslock",
-        }, {
-            "name": "Jane Doe",
-            "email": "jane@doe.com",
-            "password": "capslock",
-        }]
-
-        roles = [{
-            "name": "Admin",
-            "slug": "admin",
-        }, {
-            "name": "Editor",
-            "slug": "editor",
-        }, {
-            "name": "Reporter",
-            "slug": "reporter"
-        }]
-
-        permissions = [{
-            "name": "Create Post",
-            "slug": "create-post",
-        }, {
-            "name": "Edit Post",
-            "slug": "edit-post",
-        }, {
-            "name": "Delete Post",
-            "slug": "delete-post",
-        }, {
-            "name": "Create User",
-            "slug": "create-user",
-        }, {
-            "name": "Edit User",
-            "slug": "edit-user",
-        }, {
-            "name": "Delete User",
-            "slug": "delete-user",
-        }]
-
-        QueryBuilder().table("users").bulk_create(users)
-        QueryBuilder().table("roles").bulk_create(roles)
-        QueryBuilder().table("permissions").bulk_create(permissions)
-        """
-
         user = User.first()
-        # role = Role.where("slug", "admin").first()
-        # permission = Permission.where("slug", "create-user").first()
-
-        """Role related methods
-        Methods:
-            role.sync_permissions([permission])
-            role.attach_permission(permission)
-            role.detach_permission(permission)
-        """
-
-        """Permission related methods
-
-        Methods:
-            permission.sync_roles([role])
-            permission.attach_role(role)
-            permission.detach_role(role)
-        """
-
-        """User related methods
-
-        Methods:
-            user.sync_roles([role])
-            user.assign_role(role)
-            user.revoke_role(role)
-            user.has_role(role)
-            user.has_any_role(roles)
-            user.has_all_roles(roles)
-        """
-
-        # Role.create({
-        #     "name": "Driver",
-        #     "slug": "driver",
+        
+        # user.give_permission_to("create-post", "edit-post")
+        # user.give_permission_to("delete-post")
+        # user.revoke_permission_to(["delete-post", 'create-post'])
+        
+        """ role = Role.first()
+        
+        role.sync_permissions(['create-post', 'edit-post', 'delete-post'])
+        role.attach_permission("create-user")
+        role.detach_permission("create-post") """
+        
+        # user.assign_role(role)
+        # user.revoke_role(role)
+        
+        """ return {
+            "roles": user.roles().serialize(),
+            "permissions": role.permissions().serialize(),
+            "has_role": user.has_role_of("admin"),
+            "user_permissions": user.permissions().serialize(),
+        } """
+        
+        permission = Permission.where("slug", "create-user").first()
+        
+        permission.sync_roles(["admin", "editor"])
+        
+        permission.detach_role("admin")
+        permission.attach_role("admin")
+        
+        return {
+            "roles": permission.roles().serialize(),
+        }
+        
+        # user.give_permission_to("create-post", "edit-post")
+        
+        # QueryBuilder().table("model_has_permissions").create({
+        #     "permission_id": 3,
+        #     "permissionable_id": role.id,
+        #     "permissionable_type": "roles"
         # })
-        return Role.all()
-        # role.sync_permissions(Permission.all())
-        # return role.permissions
-        # user.attach_role(role)
-        return user.roles
-        return {"result": user.roles}
+        
+        # select p.* from permissions as p,
+        #     model_has_permissions as mhp,
+        #     users as u,
+        #     role_user as ru
+        #     where ((mhp.permissionable_id = u.id and mhp.permissionable_type = 'users' and mhp.permission_id = p.id) or
+        #     (mhp.permissionable_id = ru.role_id and mhp.permissionable_type = 'roles' and ru.user_id = u.id and mhp.permission_id = p.id)) and
+        #     u.id = '1'
+
+        return {
+            "data": user.has_permission_to("create-posts"),
+            "has_any": user.has_any_permission(["create-post", "edit-post"]),
+            "has_all": user.has_all_permissions(["create-post", "edit-post", "delete-post"]),
+            "can_any": user.can_("create-post|edit-post|delete-post"),
+            "can_all": user.can_("create-post,edit-post,delete-post"),
+            "permissions": user.permissions().serialize()
+        }

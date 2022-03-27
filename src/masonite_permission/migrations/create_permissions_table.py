@@ -16,25 +16,21 @@ class CreatePermissionsTable(Migration):
             table.string("name").nullable()
             table.string("slug")
             table.timestamps()
-
-        with self.schema.create("permission_role") as table:
-            table.increments("id")
+            
+        # user, role, permission polymorphic relationship
+        with self.schema.create("model_has_permissions") as table:
+            table.increments('id')
+            table.morphs("permissionable")
             table.unsigned_integer("permission_id")
-            table.unsigned_integer("role_id")
-
             table.foreign("permission_id").references("id").on("permissions").on_delete("cascade")
-            table.foreign("role_id").references("id").on("roles").on_delete("cascade")
-
             table.timestamps()
 
         with self.schema.create("role_user") as table:
             table.increments("id")
             table.unsigned_integer("role_id")
             table.unsigned_integer("user_id")
-
             table.foreign("role_id").references("id").on("roles").on_delete("cascade")
             table.foreign("user_id").references("id").on("users").on_delete("cascade")
-
             table.timestamps()
 
     def down(self):

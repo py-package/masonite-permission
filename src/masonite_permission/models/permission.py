@@ -13,73 +13,94 @@ class Permission(Model):
 
     __fillable__ = ["name", "slug"]
 
-    @belongs_to_many("permission_id", "role_id", "id", "id")
     def roles(self):
-        """Permission can be in multiple roles"""
         from ..models.role import Role
+        
+        return (
+            Role.join("model_has_permissions as mhp", "mhp.permissionable_id", "=", "roles.id")
+            .where("mhp.permission_id", self.id)
+            .where("mhp.permissionable_type", "roles")
+            .select_raw("roles.*").get()
+        )
 
-        return Role
+    def sync_roles(self, *args):
+        """Sync roles from related model"""
+        from ..models.role import Role
+        
+        if type(args[0]) == list:
+            args = args[0]
+        
+        roles = Role.where_in("slug", args).get()
+        slugs = roles.pluck("slug")
+        diff = set(args) - set(slugs)
+        
+        if len(diff) > 0:
+            diff_roles = ", ".join(list(diff))
+            raise PermissionException(f"Role: {diff_roles} does not exist!")
+        
+        data = []
+        for role in roles:
+            data.append({
+                "permission_id": self.id, 
+                "permissionable_id": role.id,
+                "permissionable_type": "roles"
+            })
+        
+        QueryBuilder().table("model_has_permissions").where("permissionable_type", "roles").where("permission_id", self.id).delete()
+        if (len(data) > 0):
+            QueryBuilder().table("model_has_permissions").bulk_create(data)
+
 
     def attach_role(self, role):
-        """Assign a role to a permission
+        """Assign a role to a role
 
         Arguments:
-            role {collection or int} -- Role collection or role id...
+            role {collection or str} -- Role collection or role slug...
         """
         from ..models.role import Role
-
-        if isinstance(role, int) or isinstance(role, str):
-            role = Role.find(int(role))
+        
+        if type(role) == str:
+            role = Role.where("slug", role).first()
+            if not role:
+                raise PermissionException(f"Role: {role} does not exist!")
 
         exists = (
             QueryBuilder()
-            .table("permission_role")
+            .table("model_has_permissions")
+            .where("permissionable_id", role.id)
             .where("permission_id", self.id)
-            .where("role_id", role.id)
+            .where("permissionable_type", "roles")
             .count()
         )
 
         if not exists:
-            self.attach("roles", role)
+            QueryBuilder().table("model_has_permissions").create({
+                "permission_id": self.id,
+                "permissionable_id": role.id,
+                "permissionable_type": "roles"
+            })
 
     def detach_role(self, role):
         """Detach a role from a permission
 
         Arguments:
-            role {collection or int} -- Role collection or role id...
+            role {collection or int} -- Role collection or role slug...
         """
         from ..models.role import Role
-
-        if isinstance(role, int) or isinstance(role, str):
-            role = Role.find(int(role))
+        
+        if type(role) == str:
+            role = Role.where("slug", role).first()
+            if not role:
+                raise PermissionException(f"Role: {role} does not exist!")
 
         exists = (
             QueryBuilder()
-            .table("permission_role")
+            .table("model_has_permissions")
+            .where("permissionable_id", role.id)
             .where("permission_id", self.id)
-            .where("role_id", role.id)
+            .where("permissionable_type", "roles")
             .count()
         )
 
         if exists:
-            self.detach("roles", role)
-
-    def sync_roles(self, roles: list):
-        """Sync roles for a role
-
-        Arguments:
-            roles {list} -- List of roles collection or role ids...
-
-        """
-        from ..models.role import Role
-
-        if type(roles) != Collection and type(roles) != list:
-            raise PermissionException("Roles must be a list of collection of roles or role ids!")
-
-        if len(roles) != 0:
-            role = roles[0]
-            if isinstance(role, int) or isinstance(role, str):
-                roles = Role.where_in("id", roles).get()
-
-        QueryBuilder().table("permission_role").where("permission_id", self.id).delete()
-        self.save_many("roles", roles)
+            QueryBuilder().table("model_has_permissions").where("permissionable_id", role.id).where("permissionable_type", "roles").where("permission_id", self.id).delete()
