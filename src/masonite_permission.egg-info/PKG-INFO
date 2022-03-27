@@ -1,3 +1,28 @@
+Metadata-Version: 2.1
+Name: masonite-permission
+Version: 0.1.5
+Summary: Associate users with roles and permissions
+Home-page: https://github.com/yubarajshrestha/masonite-permission
+Author: Yubaraj Shrestha
+Author-email: companion.krish@outlook.com
+License: MIT license
+Keywords: Masonite,Python,Development,Filemanager
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Environment :: Web Environment
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Topic :: Software Development :: Libraries :: Application Frameworks
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Framework :: Masonite
+Description-Content-Type: text/markdown
+Provides-Extra: dev
+License-File: LICENSE
+
 # Masonite Permission
 
 <p align="center">
@@ -364,3 +389,5 @@ Masonite Permission is open-sourced software licensed under the [MIT license](LI
 ```
 
 ```
+
+
