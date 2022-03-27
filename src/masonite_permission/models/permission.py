@@ -1,8 +1,6 @@
 """Permission Model."""
 from masoniteorm.models import Model
-from masoniteorm.relationships import belongs_to_many
 from masoniteorm.query import QueryBuilder
-from masoniteorm.collection.Collection import Collection
 from ..exceptions import PermissionException
 
 

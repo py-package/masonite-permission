@@ -1,5 +1,4 @@
 from masoniteorm.query import QueryBuilder
-from masoniteorm.relationships import belongs_to_many
 from masoniteorm.collection.Collection import Collection
 from ..exceptions import PermissionException
 
