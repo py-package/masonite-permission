@@ -5,12 +5,15 @@ from masoniteorm.collection.Collection import Collection
 from ..exceptions import PermissionException
 
 
-class HasRoles():
-    
+class HasRoles:
     def roles(self):
         from ..models.role import Role
-        
-        return Role.join("role_user as ru", "ru.role_id", "=", "roles.id").where("ru.user_id", self.id).get()
+
+        return (
+            Role.join("role_user as ru", "ru.role_id", "=", "roles.id")
+            .where("ru.user_id", self.id)
+            .get()
+        )
 
     def has_role_of(self, role):
         """Check if user has a role"""
@@ -19,7 +22,6 @@ class HasRoles():
 
         return self.roles().pluck("slug").contains(role)
 
-    
     def has_any_role(self, *args):
         """Check if user has any of the roles"""
 
@@ -32,13 +34,12 @@ class HasRoles():
         roles = self.roles().pluck("slug")
 
         result = set(slugs).intersection(roles)
-    
+
         return len(result) > 0
 
-    
     def has_all_roles(self, *args):
         """Check if user has all of the roles"""
-        
+
         slugs = []
         if type(args[0]) == list:
             slugs = args[0]
@@ -46,9 +47,8 @@ class HasRoles():
             slugs = list(args)
 
         roles = self.roles().pluck("slug")
-        
-        return set(slugs).issubset(roles) and len(set(slugs) - set(roles)) == 0
 
+        return set(slugs).issubset(roles) and len(set(slugs) - set(roles)) == 0
 
     def sync_roles(self, roles):
         """Assign a role to a user"""
@@ -65,7 +65,6 @@ class HasRoles():
         QueryBuilder().table("role_user").where("user_id", self.id).delete()
         self.save_many("roles", roles)
 
-    
     def assign_role(self, role):
         """Assign a role to a user
 
@@ -110,8 +109,9 @@ class HasRoles():
         )
 
         if exists:
-            QueryBuilder().table("role_user").where("user_id", self.id).where("role_id", role.id).delete()
-
+            QueryBuilder().table("role_user").where("user_id", self.id).where(
+                "role_id", role.id
+            ).delete()
 
     def is_(self, roles):
         """Check if user has a role"""

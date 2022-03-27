@@ -6,15 +6,16 @@ from masoniteorm.query import QueryBuilder
 class RoleTableSeeder(Seeder):
     def run(self):
         """Run the database seeds."""
-        roles = [{
-            "name": "Admin",
-            "slug": "admin",
-        }, {
-            "name": "Editor",
-            "slug": "editor",
-        }, {
-            "name": "Reporter",
-            "slug": "reporter"
-        }]
+        roles = [
+            {
+                "name": "Admin",
+                "slug": "admin",
+            },
+            {
+                "name": "Editor",
+                "slug": "editor",
+            },
+            {"name": "Reporter", "slug": "reporter"},
+        ]
 
         QueryBuilder().table("roles").bulk_create(roles)

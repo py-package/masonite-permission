@@ -16,10 +16,10 @@ class CreatePermissionsTable(Migration):
             table.string("name").nullable()
             table.string("slug")
             table.timestamps()
-            
+
         # user, role, permission polymorphic relationship
         with self.schema.create("model_has_permissions") as table:
-            table.increments('id')
+            table.increments("id")
             table.morphs("permissionable")
             table.unsigned_integer("permission_id")
             table.foreign("permission_id").references("id").on("permissions").on_delete("cascade")
