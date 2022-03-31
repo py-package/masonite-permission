@@ -8,13 +8,13 @@ class CreatePermissionsTable(Migration):
         with self.schema.create("roles") as table:
             table.increments("id")
             table.string("name").nullable()
-            table.string("slug")
+            table.string("slug").unique()
             table.timestamps()
 
         with self.schema.create("permissions") as table:
             table.increments("id")
             table.string("name").nullable()
-            table.string("slug")
+            table.string("slug").unique()
             table.timestamps()
 
         # user, role, permission polymorphic relationship
@@ -37,6 +37,6 @@ class CreatePermissionsTable(Migration):
         """Revert the migrations."""
 
         self.schema.drop("role_user")
-        self.schema.drop("permission_role")
+        self.schema.drop("model_has_permissions")
         self.schema.drop("permissions")
         self.schema.drop("roles")
