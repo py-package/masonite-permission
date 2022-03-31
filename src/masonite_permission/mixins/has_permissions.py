@@ -38,14 +38,22 @@ class HasPermissions:
         """
         from ..models.permission import Permission
 
-        if isinstance(permission, int) or isinstance(permission, str):
-            permission = Permission.find(int(permission))
+        if isinstance(permission, int):
+            permission = Permission.find(permission)
+            if not permission:
+                raise PermissionException(f"Permission: with id {permission} does not exist!")
+
+        elif isinstance(permission, str):
+            permission = Permission.where("slug", permission).first()
+            if not permission:
+                raise PermissionException(f"Permission: {permission} does not exist!")
 
         exists = (
             QueryBuilder()
-            .table("permission_role")
-            .where("role_id", self.id)
+            .table("model_has_permissions")
+            .where("permissionable_id", self.id)
             .where("permission_id", permission.id)
+            .where("permissionable_type", self.get_table_name())
             .count()
         )
 
@@ -60,15 +68,22 @@ class HasPermissions:
         """
         from ..models.permission import Permission
 
-        permission = Permission.where_slug(permission).first()
-        if not permission:
-            raise PermissionException(f"Permission: {permission} does not exist!")
+        if isinstance(permission, int):
+            permission = Permission.find(permission)
+            if not permission:
+                raise PermissionException(f"Permission: with id {permission} does not exist!")
+
+        elif isinstance(permission, str):
+            permission = Permission.where("slug", permission).first()
+            if not permission:
+                raise PermissionException(f"Permission: {permission} does not exist!")
 
         exists = (
             QueryBuilder()
-            .table("permission_role")
-            .where("role_id", self.id)
+            .table("model_has_permissions")
+            .where("permissionable_id", self.id)
             .where("permission_id", permission.id)
+            .where("permissionable_type", self.get_table_name())
             .count()
         )
 
@@ -126,31 +141,50 @@ class HasPermissions:
         """Sync permissions from related model"""
         from ..models.permission import Permission
 
+        permission_ids = []
+        permission_slugs = []
+        found_ids = []
+
+        if len(args) == 0:
+            QueryBuilder().table("model_has_permissions").where(
+                "permissionable_id", self.id
+            ).where("permissionable_type", self.get_table_name()).delete()
+            return
+
         if type(args[0]) == list:
             args = args[0]
 
-        permissions = Permission.where_in("slug", args).get()
-        slugs = permissions.pluck("slug")
-        diff = set(args) - set(slugs)
-        if len(diff) > 0:
-            diff_permissions = ", ".join(list(diff))
-            raise PermissionException(f"Permission: {diff_permissions} does not exist!")
+        for permission in args:
+            if isinstance(permission, int):
+                permission_ids.append(permission)
+            elif isinstance(permission, str):
+                permission_slugs.append(permission)
+            elif isinstance(permission, Permission):
+                found_ids.append(permission.id)
+
+        permission_by_id = list(Permission.where_in("id", permission_ids).get().pluck("id"))
+        permission_by_slug = list(Permission.where_in("slug", permission_slugs).get().pluck("id"))
+
+        ids = list(dict.fromkeys(found_ids + permission_by_id + permission_by_slug))
 
         data = []
-        for permission in permissions:
+        for permission in ids:
             data.append(
                 {
-                    "permission_id": permission.id,
+                    "permission_id": permission,
                     "permissionable_id": self.id,
                     "permissionable_type": self.get_table_name(),
                 }
             )
 
-        QueryBuilder().table("model_has_permissions").where("permissionable_id", self.id).where(
+        query = QueryBuilder().table("model_has_permissions")
+
+        query.where("permissionable_id", self.id).where(
             "permissionable_type", self.get_table_name()
         ).delete()
+
         if len(data) > 0:
-            QueryBuilder().table("model_has_permissions").bulk_create(data)
+            query.bulk_create(data)
 
     def has_permission_to(self, permission):
         if type(permission) != str:

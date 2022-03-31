@@ -1,5 +1,4 @@
 from masoniteorm.query import QueryBuilder
-from masoniteorm.collection.Collection import Collection
 
 from ..exceptions import PermissionException
 
@@ -49,20 +48,44 @@ class HasRoles:
 
         return set(slugs).issubset(roles) and len(set(slugs) - set(roles)) == 0
 
-    def sync_roles(self, roles):
+    def sync_roles(self, *args):
         """Assign a role to a user"""
         from ..models.role import Role
 
-        if type(roles) != Collection and type(roles) != list:
-            raise PermissionException("roles must be a collection of roles or list of role ids!")
+        role_ids = []
+        role_slugs = []
+        found_ids = []
 
-        if len(roles) != 0:
-            role = roles[0]
-            if isinstance(role, int) or isinstance(role, str):
-                roles = Role.where_in("id", roles).get()
+        if len(args) == 0:
+            QueryBuilder().table("role_user").where("user_id", self.id).delete()
+            return
 
-        QueryBuilder().table("role_user").where("user_id", self.id).delete()
-        self.save_many("roles", roles)
+        if type(args[0]) == list:
+            args = args[0]
+
+        for role in args:
+            if isinstance(role, int):
+                role_ids.append(role)
+            elif isinstance(role, str):
+                role_slugs.append(role)
+            elif isinstance(role, Role):
+                found_ids.append(role.id)
+
+        role_by_id = list(Role.where_in("id", role_ids).get().pluck("id"))
+        role_by_slug = list(Role.where_in("slug", role_slugs).get().pluck("id"))
+
+        ids = list(dict.fromkeys(found_ids + role_by_id + role_by_slug))
+
+        data = []
+        for role in ids:
+            data.append({"user_id": self.id, "role_id": role})
+
+        query = QueryBuilder().table("role_user")
+
+        query.where("user_id", self.id).delete()
+
+        if len(data) > 0:
+            query.bulk_create(data)
 
     def assign_role(self, role):
         """Assign a role to a user

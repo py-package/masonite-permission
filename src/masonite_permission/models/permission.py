@@ -26,32 +26,48 @@ class Permission(Model):
         """Sync roles from related model"""
         from ..models.role import Role
 
+        role_ids = []
+        role_slugs = []
+        found_ids = []
+
+        if len(args) == 0:
+            QueryBuilder().table("model_has_permissions").where(
+                "permissionable_type", "roles"
+            ).where("permission_id", self.id).delete()
+            return
+
         if type(args[0]) == list:
             args = args[0]
 
-        roles = Role.where_in("slug", args).get()
-        slugs = roles.pluck("slug")
-        diff = set(args) - set(slugs)
+        for role in args:
+            if isinstance(role, int):
+                role_ids.append(role)
+            elif isinstance(role, str):
+                role_slugs.append(role)
+            elif isinstance(role, Role):
+                found_ids.append(role.id)
 
-        if len(diff) > 0:
-            diff_roles = ", ".join(list(diff))
-            raise PermissionException(f"Role: {diff_roles} does not exist!")
+        role_by_id = list(Role.where_in("id", role_ids).get().pluck("id"))
+        role_by_slug = list(Role.where_in("slug", role_slugs).get().pluck("id"))
+
+        ids = list(dict.fromkeys(found_ids + role_by_id + role_by_slug))
 
         data = []
-        for role in roles:
+        for role in ids:
             data.append(
                 {
                     "permission_id": self.id,
-                    "permissionable_id": role.id,
+                    "permissionable_id": role,
                     "permissionable_type": "roles",
                 }
             )
 
-        QueryBuilder().table("model_has_permissions").where("permissionable_type", "roles").where(
-            "permission_id", self.id
-        ).delete()
+        query = QueryBuilder().table("model_has_permissions")
+
+        query.where("permissionable_type", "roles").where("permission_id", self.id).delete()
+
         if len(data) > 0:
-            QueryBuilder().table("model_has_permissions").bulk_create(data)
+            query.bulk_create(data)
 
     def attach_role(self, role):
         """Assign a role to a role
@@ -65,6 +81,10 @@ class Permission(Model):
             role = Role.where("slug", role).first()
             if not role:
                 raise PermissionException(f"Role: {role} does not exist!")
+        elif type(role) == int:
+            role = Role.find(role)
+            if not role:
+                raise PermissionException(f"Role: with id {role} does not exist!")
 
         exists = (
             QueryBuilder()
@@ -96,6 +116,10 @@ class Permission(Model):
             role = Role.where("slug", role).first()
             if not role:
                 raise PermissionException(f"Role: {role} does not exist!")
+        elif type(role) == int:
+            role = Role.find(role)
+            if not role:
+                raise PermissionException(f"Role: with id {role} does not exist!")
 
         exists = (
             QueryBuilder()
