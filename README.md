@@ -22,7 +22,7 @@
 
 Associate users with roles and permissions to control access to your application.
 
-> Note: You can give it a try but it's not ready for production.
+> Note: Give a try and let me know :).
 
 ## Getting Started
 
