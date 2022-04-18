@@ -4,13 +4,11 @@ from ..exceptions import PermissionException
 
 
 class HasRoles:
-
     def _role_query(self):
         from ..models.role import Role
 
-        return (
-            Role.join("role_user as ru", "ru.role_id", "=", "roles.id")
-            .where("ru.user_id", self.id)
+        return Role.join("role_user as ru", "ru.role_id", "=", "roles.id").where(
+            "ru.user_id", self.id
         )
 
     def roles(self):
@@ -44,8 +42,7 @@ class HasRoles:
 
         return self._role_query().where_in("slug", slugs).count() == len(slugs)
 
-    def sync_roles(self, *args):
-        """Assign a role to a user"""
+    def _get_role_ids(self, args):
         from ..models.role import Role
 
         role_ids = []
@@ -69,16 +66,18 @@ class HasRoles:
         ids = []
 
         if len(role_ids) > 0 and len(role_slugs) > 0:
-            ids = (
-                Role.where_raw(f"(id in {role_ids}) or slug in {role_slugs}")
-                .get()
-                .pluck("id")
-            )
+            ids = Role.where_raw(f"(id in {role_ids}) or slug in {role_slugs}").get().pluck("id")
         elif len(role_ids) > 0:
             ids = list(Role.where_in("id", role_ids).get().pluck("id"))
         elif len(role_slugs) > 0:
             ids = list(Role.where_in("slug", role_slugs).get().pluck("id"))
 
+        return ids
+
+    def sync_roles(self, *args):
+        """Assign a role to a user"""
+
+        ids = self._get_role_ids(args)
         data = []
         for role in ids:
             data.append({"user_id": self.id, "role_id": role})
