@@ -15,6 +15,7 @@ setup(
         "masonite_permission.exceptions",
         "masonite_permission.migrations",
         "masonite_permission.models",
+        "masonite_permission.mixins",
         "masonite_permission.providers"
     ],
     package_dir={"": "src"},
