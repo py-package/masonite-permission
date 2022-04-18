@@ -24,6 +24,6 @@ coverage: ## Run package tests and upload coverage reports
 publish: ## Publish package to pypi
 	python setup.py sdist bdist_wheel
 	twine upload dist/* --verbose
-	rm -fr build dist .egg src/masonite_masonite_permission.egg-info
+	rm -fr build dist .egg src/masonite_permission.egg-info
 pypirc: ## Copy the template .pypirc in the repo to your home directory
 	cp .pypirc ~/.pypirc
