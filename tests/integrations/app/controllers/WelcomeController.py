@@ -2,7 +2,6 @@
 from masonite.views import View
 from masonite.controllers import Controller
 
-from src.masonite_permission.models.permission import Permission
 from src.masonite_permission.models.role import Role
 from tests.integrations.app.models.User import User
 
@@ -18,14 +17,6 @@ class WelcomeController(Controller):
         return view.render("welcome", {"user": user})
 
     def test(self):
+        user = User.first()
 
-        permission = Permission.where("slug", "create-user").first()
-
-        permission.sync_roles(["admin", "editor", 3])
-
-        permission.detach_role("admin")
-        permission.attach_role("admin")
-
-        return {
-            "roles": permission.roles().serialize(),
-        }
+        return user.permissions()

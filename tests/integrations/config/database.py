@@ -9,7 +9,7 @@ The connections here don't determine the database but determine the "connection"
 They can be named whatever you want.
 """
 DATABASES = {
-    "default": env("DB_CONNECTION", "sqlite"),
+    "default": env("DB_CONNECTION", "postgres"),
     "sqlite": {
         "driver": "sqlite",
         "database": env("SQLITE_DB_DATABASE", "masonite.sqlite3"),
@@ -17,12 +17,12 @@ DATABASES = {
         "log_queries": env("DB_LOG"),
     },
     "mysql": {
+        "host": "127.0.0.1",
         "driver": "mysql",
-        "host": env("DB_HOST"),
-        "user": env("DB_USERNAME"),
-        "password": env("DB_PASSWORD"),
-        "database": env("DB_DATABASE"),
-        "port": env("DB_PORT"),
+        "database": "masonite_permission",
+        "user": "meyubaraj",
+        "password": "MDB@123#go",
+        "port": 3306,
         "prefix": "",
         "grammar": "mysql",
         "options": {
@@ -31,12 +31,12 @@ DATABASES = {
         "log_queries": env("DB_LOG"),
     },
     "postgres": {
+        "host": "127.0.0.1",
         "driver": "postgres",
-        "host": env("DB_HOST"),
-        "user": env("DB_USERNAME"),
-        "password": env("DB_PASSWORD"),
-        "database": env("DB_DATABASE"),
-        "port": env("DB_PORT"),
+        "database": "masonite_permission",
+        "user": "meyubaraj",
+        "password": "MDB@123#go",
+        "port": 5432,
         "prefix": "",
         "grammar": "postgres",
         "log_queries": env("DB_LOG"),

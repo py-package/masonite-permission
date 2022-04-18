@@ -6,7 +6,7 @@ from masoniteorm.query import QueryBuilder
 class TestRole(TestCase):
     @classmethod
     def setUpClass(cls):
-        QueryBuilder().table("roles").truncate()
+        QueryBuilder().table("roles").truncate(True)
 
     def setUp(self):
         super().setUp()
@@ -19,7 +19,7 @@ class TestRole(TestCase):
 
     def tearDown(self):
         super().tearDown()
-        QueryBuilder().table("roles").truncate()
+        QueryBuilder().table("roles").truncate(True)
 
     def test_role_created(self):
         role = Role.first()

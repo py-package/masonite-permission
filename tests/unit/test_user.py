@@ -9,9 +9,9 @@ from masonite.facades import Hash
 class TestUser(TestCase):
     @classmethod
     def setUpClass(cls):
-        QueryBuilder().table("users").truncate()
-        QueryBuilder().table("roles").truncate()
-        QueryBuilder().table("permissions").truncate()
+        QueryBuilder().table("users").truncate(True)
+        QueryBuilder().table("roles").truncate(True)
+        QueryBuilder().table("permissions").truncate(True)
 
     def setUp(self):
         super().setUp()
@@ -26,9 +26,9 @@ class TestUser(TestCase):
 
     def tearDown(self):
         super().tearDown()
-        QueryBuilder().table("users").truncate()
-        QueryBuilder().table("roles").truncate()
-        QueryBuilder().table("permissions").truncate()
+        QueryBuilder().table("users").truncate(True)
+        QueryBuilder().table("roles").truncate(True)
+        QueryBuilder().table("permissions").truncate(True)
 
     def test_user_has_roles(self):
         role = Role.create(
