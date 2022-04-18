@@ -4,21 +4,21 @@ from ..exceptions import PermissionException
 
 
 class HasRoles:
-    def roles(self):
+    def _role_query(self):
         from ..models.role import Role
 
-        return (
-            Role.join("role_user as ru", "ru.role_id", "=", "roles.id")
-            .where("ru.user_id", self.id)
-            .get()
+        return Role.join("role_user as ru", "ru.role_id", "=", "roles.id").where(
+            "ru.user_id", self.id
         )
+
+    def roles(self):
+        return self._role_query().get()
 
     def has_role_of(self, role):
         """Check if user has a role"""
         if type(role) != str:
             raise PermissionException("role must be a string!")
-
-        return self.roles().pluck("slug").contains(role)
+        return self.roles().where("slug", role).count() > 0
 
     def has_any_role(self, *args):
         """Check if user has any of the roles"""
@@ -29,11 +29,7 @@ class HasRoles:
         else:
             slugs = list(args)
 
-        roles = self.roles().pluck("slug")
-
-        result = set(slugs).intersection(roles)
-
-        return len(result) > 0
+        return self._role_query().where_in("slug", slugs).count() > 0
 
     def has_all_roles(self, *args):
         """Check if user has all of the roles"""
@@ -44,17 +40,13 @@ class HasRoles:
         else:
             slugs = list(args)
 
-        roles = self.roles().pluck("slug")
+        return self._role_query().where_in("slug", slugs).count() == len(slugs)
 
-        return set(slugs).issubset(roles) and len(set(slugs) - set(roles)) == 0
-
-    def sync_roles(self, *args):
-        """Assign a role to a user"""
+    def _get_role_ids(self, args):
         from ..models.role import Role
 
         role_ids = []
         role_slugs = []
-        found_ids = []
 
         if len(args) == 0:
             QueryBuilder().table("role_user").where("user_id", self.id).delete()
@@ -69,13 +61,23 @@ class HasRoles:
             elif isinstance(role, str):
                 role_slugs.append(role)
             elif isinstance(role, Role):
-                found_ids.append(role.id)
+                role_ids.append(role.id)
 
-        role_by_id = list(Role.where_in("id", role_ids).get().pluck("id"))
-        role_by_slug = list(Role.where_in("slug", role_slugs).get().pluck("id"))
+        ids = []
 
-        ids = list(dict.fromkeys(found_ids + role_by_id + role_by_slug))
+        if len(role_ids) > 0 and len(role_slugs) > 0:
+            ids = Role.where_raw(f"(id in {role_ids}) or slug in {role_slugs}").get().pluck("id")
+        elif len(role_ids) > 0:
+            ids = list(Role.where_in("id", role_ids).get().pluck("id"))
+        elif len(role_slugs) > 0:
+            ids = list(Role.where_in("slug", role_slugs).get().pluck("id"))
 
+        return ids
+
+    def sync_roles(self, *args):
+        """Assign a role to a user"""
+
+        ids = self._get_role_ids(args)
         data = []
         for role in ids:
             data.append({"user_id": self.id, "role_id": role})

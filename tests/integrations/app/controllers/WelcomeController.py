@@ -18,5 +18,8 @@ class WelcomeController(Controller):
 
     def test(self):
         user = User.first()
+        # user.sync_permissions("create-user", "edit-user", "edit-post")
 
-        return user.permissions()
+        return {
+            "has_permission": user.has_all_permissions("create-user", "edit-user"),
+        }

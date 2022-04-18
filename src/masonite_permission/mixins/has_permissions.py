@@ -1,11 +1,15 @@
 from masoniteorm.query import QueryBuilder
-from masoniteorm.collection.Collection import Collection
 from ..exceptions import PermissionException
 
 
 class HasPermissions:
-    def permissions(self):
+    def _permission_query(self):
+        """Return a query builder for permissions"""
         from ..models.permission import Permission
+
+        role_id_query = (
+            f"select role_user.role_id from role_user where role_user.user_id = {self.id}"
+        )
 
         return Permission.where_in(
             "id",
@@ -14,15 +18,26 @@ class HasPermissions:
                 .select("model_has_permissions.permission_id")
                 .where_raw(
                     f"""
-                    (model_has_permissions.permissionable_type = 'users' and model_has_permissions.permissionable_id = {self.id})
+                    (
+                        model_has_permissions.permissionable_type = 'users'
+                        and
+                        model_has_permissions.permissionable_id = {self.id}
+                    )
                     or
-                    (model_has_permissions.permissionable_type = 'roles' and model_has_permissions.permissionable_id in (
-                        select role_user.role_id from role_user where role_user.user_id = {self.id}
-                    ))
+                    (
+                        model_has_permissions.permissionable_type = 'roles'
+                        and
+                        model_has_permissions.permissionable_id in (
+                            {role_id_query}
+                        )
+                    )
                 """
                 )
             ),
-        ).get()
+        )
+
+    def permissions(self):
+        return self._permission_query().get()
 
     def attach_permission(self, permission):
         """Assign a permission to a role
@@ -131,8 +146,7 @@ class HasPermissions:
             "permission_id", permissions.pluck("id")
         ).where("permissionable_type", self.get_table_name()).delete()
 
-    def sync_permissions(self, *args):
-        """Sync permissions from related model"""
+    def _get_permission_ids(self, args):
         from ..models.permission import Permission
 
         permission_ids = []
@@ -168,6 +182,12 @@ class HasPermissions:
         elif len(permission_slugs) > 0:
             ids = list(Permission.where_in("slug", permission_slugs).get().pluck("id"))
 
+        return ids
+
+    def sync_permissions(self, *args):
+        """Sync permissions from related model"""
+
+        ids = self._get_permission_ids(args)
         data = []
         for permission in ids:
             data.append(
@@ -190,8 +210,7 @@ class HasPermissions:
     def has_permission_to(self, permission):
         if type(permission) != str:
             raise PermissionException("permission must be a string!")
-
-        return self.permissions().pluck("slug").contains(permission)
+        return self._permission_query().where("permissions.slug", permission).count() > 0
 
     def has_any_permission(self, *args):
         """Check if user has any of the permissions"""
@@ -202,11 +221,7 @@ class HasPermissions:
         else:
             slugs = list(args)
 
-        permissions = self.permissions().pluck("slug")
-
-        result = set(slugs).intersection(permissions)
-
-        return len(result) > 0
+        return self._permission_query().where_in("permissions.slug", slugs).count() > 0
 
     def has_all_permissions(self, *args):
         """Check if user has all of the permissions"""
@@ -217,9 +232,7 @@ class HasPermissions:
         else:
             slugs = list(args)
 
-        permissions = self.permissions().pluck("slug")
-
-        return set(slugs).issubset(permissions) and len(set(slugs) - set(permissions)) == 0
+        return self._permission_query().where_in("permissions.slug", slugs).count() == len(slugs)
 
     def can_(self, permissions):
         """Check if user has a permission"""
