@@ -7,19 +7,22 @@ class HasPermissions:
     def permissions(self):
         from ..models.permission import Permission
 
-        return (
-            Permission.where_in("id", lambda q: (
+        return Permission.where_in(
+            "id",
+            lambda q: (
                 q.table("model_has_permissions")
                 .select("model_has_permissions.permission_id")
-                .where_raw(f"""
+                .where_raw(
+                    f"""
                     (model_has_permissions.permissionable_type = 'users' and model_has_permissions.permissionable_id = {self.id})
                     or
                     (model_has_permissions.permissionable_type = 'roles' and model_has_permissions.permissionable_id in (
                         select role_user.role_id from role_user where role_user.user_id = {self.id}
                     ))
-                """)
-            )).get()
-        )
+                """
+                )
+            ),
+        ).get()
 
     def attach_permission(self, permission):
         """Assign a permission to a role
@@ -155,7 +158,11 @@ class HasPermissions:
         ids = []
 
         if len(permission_ids) > 0 and len(permission_slugs) > 0:
-            ids = Permission.where_raw(f"(id in {permission_ids}) or slug in {permission_slugs}").get().pluck("id")
+            ids = (
+                Permission.where_raw(f"(id in {permission_ids}) or slug in {permission_slugs}")
+                .get()
+                .pluck("id")
+            )
         elif len(permission_ids) > 0:
             ids = list(Permission.where_in("id", permission_ids).get().pluck("id"))
         elif len(permission_slugs) > 0:
