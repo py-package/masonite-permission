@@ -7,28 +7,19 @@ class HasPermissions:
     def permissions(self):
         from ..models.permission import Permission
 
-        table = self.get_table_name()
-
-        direct_permissions = (
-            Permission.join(
-                "model_has_permissions as mhp", "mhp.permission_id", "=", "permissions.id"
-            )
-            .where("mhp.permissionable_id", self.id)
-            .where("mhp.permissionable_type", table)
-            .select_raw("permissions.*")
-            .get()
+        return (
+            Permission.where_in("id", lambda q: (
+                q.table("model_has_permissions")
+                .select("model_has_permissions.permission_id")
+                .where_raw(f"""
+                    (model_has_permissions.permissionable_type = 'users' and model_has_permissions.permissionable_id = {self.id})
+                    or
+                    (model_has_permissions.permissionable_type = 'roles' and model_has_permissions.permissionable_id in (
+                        select role_user.role_id from role_user where role_user.user_id = {self.id}
+                    ))
+                """)
+            )).get()
         )
-
-        indirect_permissions = (
-            Permission.join(
-                "model_has_permissions as mhp", "mhp.permission_id", "=", "permissions.id"
-            )
-            .where_in("mhp.permissionable_id", self.roles().pluck("id"))
-            .where("mhp.permissionable_type", "roles")
-            .select_raw("permissions.*")
-            .get()
-        )
-        return Collection(list(direct_permissions) + list(indirect_permissions)).unique("slug")
 
     def attach_permission(self, permission):
         """Assign a permission to a role
@@ -143,7 +134,6 @@ class HasPermissions:
 
         permission_ids = []
         permission_slugs = []
-        found_ids = []
 
         if len(args) == 0:
             QueryBuilder().table("model_has_permissions").where(
@@ -160,12 +150,16 @@ class HasPermissions:
             elif isinstance(permission, str):
                 permission_slugs.append(permission)
             elif isinstance(permission, Permission):
-                found_ids.append(permission.id)
+                permission_ids.append(permission.id)
 
-        permission_by_id = list(Permission.where_in("id", permission_ids).get().pluck("id"))
-        permission_by_slug = list(Permission.where_in("slug", permission_slugs).get().pluck("id"))
+        ids = []
 
-        ids = list(dict.fromkeys(found_ids + permission_by_id + permission_by_slug))
+        if len(permission_ids) > 0 and len(permission_slugs) > 0:
+            ids = Permission.where_raw(f"(id in {permission_ids}) or slug in {permission_slugs}").get().pluck("id")
+        elif len(permission_ids) > 0:
+            ids = list(Permission.where_in("id", permission_ids).get().pluck("id"))
+        elif len(permission_slugs) > 0:
+            ids = list(Permission.where_in("slug", permission_slugs).get().pluck("id"))
 
         data = []
         for permission in ids:
@@ -202,12 +196,6 @@ class HasPermissions:
             slugs = list(args)
 
         permissions = self.permissions().pluck("slug")
-
-        # get items that are not in the permissions
-        # permissions_diff = set(slugs) - set(permissions)
-        # if len(permissions_diff) > 0:
-        #     diff_permissions = ", ".join(list(permissions_diff))
-        #     raise PermissionException(f"Permission: {diff_permissions} does not exist!")
 
         result = set(slugs).intersection(permissions)
 

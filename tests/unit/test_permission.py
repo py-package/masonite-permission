@@ -6,7 +6,7 @@ from masoniteorm.query import QueryBuilder
 class TestPermission(TestCase):
     @classmethod
     def setUpClass(cls):
-        QueryBuilder().table("permissions").truncate()
+        QueryBuilder().table("permissions").truncate(True)
 
     def setUp(self):
         super().setUp()
@@ -19,7 +19,8 @@ class TestPermission(TestCase):
 
     def tearDown(self):
         super().tearDown()
-        QueryBuilder().table("permissions").truncate()
+        QueryBuilder().table("permissions").truncate(True)
+        QueryBuilder().table("roles").truncate(True)
 
     def test_permission_created(self):
         permission = Permission.first()

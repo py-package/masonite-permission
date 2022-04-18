@@ -22,8 +22,6 @@
 
 Associate users with roles and permissions to control access to your application.
 
-> Note: Give a try and let me know :).
-
 ## Getting Started
 
 Install the package using pip:
@@ -353,14 +351,6 @@ Checking if user can do all of the {permissions}
 
 Please read the [Contributing Documentation](CONTRIBUTING.md) here.
 
-## Maintainers
-
-- [Yubaraj Shrestha](https://www.github.com/yubarajshrestha)
-
 ## License
 
 Masonite Permission is open-sourced software licensed under the [MIT license](LICENSE).
-
-```
-
-```
