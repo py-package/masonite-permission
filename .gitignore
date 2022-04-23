@@ -14,3 +14,4 @@ dist
 .env
 *.db
 src/masonite_masonite_permission.egg-info
+storage/app

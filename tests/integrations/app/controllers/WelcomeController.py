@@ -2,8 +2,8 @@
 from masonite.views import View
 from masonite.controllers import Controller
 
-from src.masonite_permission.models.role import Role
 from tests.integrations.app.models.User import User
+from masonite.cache import Cache
 
 
 class WelcomeController(Controller):
@@ -11,15 +11,23 @@ class WelcomeController(Controller):
 
     def show(self, view: View):
         user = User.first()
-        role = Role.where("slug", "reporter").first()
-        user.sync_roles(["admin", 2, "editor", role])
-
         return view.render("welcome", {"user": user})
 
-    def test(self):
+    def test(self, cache: Cache):
         user = User.first()
-        # user.sync_permissions("create-user", "edit-user", "edit-post")
+        user.sync_permissions("create-user", "edit-user", "edit-post")
+        user.give_permission_to("delete-user")
+
+        if cache.has(f"permissions-{user.id}"):
+            permissions = cache.get(f"permissions-{user.id}")
+        else:
+            permissions = user.permissions().serialize()
+            cache.put(f"permissions-{user.id}", permissions)
 
         return {
-            "has_permission": user.has_all_permissions("create-user", "edit-user"),
+            "has_all_permissions": user.has_all_permissions(
+                ["create-user", "edit-user", "delete-user", "edit-post"]
+            ),
+            "has_any_permissions": user.has_any_permission(["delete-users"]),
+            "permissions": permissions,
         }
