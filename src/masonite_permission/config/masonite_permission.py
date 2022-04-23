@@ -8,5 +8,3 @@
 | A quick description
 |
 """
-
-ENABLE_CACHE = False
