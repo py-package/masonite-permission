@@ -9,4 +9,4 @@
 |
 """
 
-ENABLE_CACHE = True
+ENABLE_CACHE = False
