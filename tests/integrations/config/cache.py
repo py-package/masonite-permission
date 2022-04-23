@@ -2,7 +2,7 @@
 
 
 STORES = {
-    "default": "redis",
+    "default": "local",
     "local": {
         "driver": "file",
         "location": "storage/framework/cache"
@@ -13,7 +13,7 @@ STORES = {
         "host": "127.0.0.1",
         "port": "6379",
         "password": "",
-        "name": "masonite_permission",
+        "name": "project_name",
     },
     "memcache": {
         "driver": "memcache",

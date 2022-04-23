@@ -1,10 +1,9 @@
 from masoniteorm.query import QueryBuilder
 
-from ..masonite_permission import MasonitePermission
 from ..exceptions import PermissionException
 
 
-class HasRoles(MasonitePermission):
+class HasRoles:
     def _role_query(self):
         from ..models.role import Role
 
@@ -67,11 +66,7 @@ class HasRoles(MasonitePermission):
         ids = []
 
         if len(role_ids) > 0 and len(role_slugs) > 0:
-            ids = (
-                Role.where_raw(f"(id in {tuple(role_ids)}) or slug in {tuple(role_slugs)}")
-                .get()
-                .pluck("id")
-            )
+            ids = Role.where_raw(f"(id in {role_ids}) or slug in {role_slugs}").get().pluck("id")
         elif len(role_ids) > 0:
             ids = list(Role.where_in("id", role_ids).get().pluck("id"))
         elif len(role_slugs) > 0:

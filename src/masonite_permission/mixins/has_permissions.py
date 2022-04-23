@@ -1,10 +1,8 @@
 from masoniteorm.query import QueryBuilder
-
-from ..masonite_permission import MasonitePermission
 from ..exceptions import PermissionException
 
 
-class HasPermissions(MasonitePermission):
+class HasPermissions:
     def _permission_query(self):
         """Return a query builder for permissions"""
         from ..models.permission import Permission
@@ -39,8 +37,7 @@ class HasPermissions(MasonitePermission):
         )
 
     def permissions(self):
-        """Return a collection of permissions"""
-        return self._get_permissions_cache(self._permission_query, self.id)
+        return self._permission_query().get()
 
     def attach_permission(self, permission):
         """Assign a permission to a role
@@ -130,7 +127,6 @@ class HasPermissions(MasonitePermission):
             "permission_id", permissions.pluck("id")
         ).where("permissionable_type", self.get_table_name()).delete()
         QueryBuilder().table("model_has_permissions").bulk_create(data)
-        self._update_permissions_cache(self._permission_query, self.id)
 
     def revoke_permission_to(self, *args):
         """Revoke permission from related model"""
@@ -149,7 +145,6 @@ class HasPermissions(MasonitePermission):
         QueryBuilder().table("model_has_permissions").where("permissionable_id", self.id).where_in(
             "permission_id", permissions.pluck("id")
         ).where("permissionable_type", self.get_table_name()).delete()
-        self._update_permissions_cache(self._permission_query, self.id)
 
     def _get_permission_ids(self, args):
         from ..models.permission import Permission
@@ -178,9 +173,7 @@ class HasPermissions(MasonitePermission):
 
         if len(permission_ids) > 0 and len(permission_slugs) > 0:
             ids = (
-                Permission.where_raw(
-                    f"(id in {tuple(permission_ids)}) or slug in {tuple(permission_slugs)}"
-                )
+                Permission.where_raw(f"(id in {permission_ids}) or slug in {permission_slugs}")
                 .get()
                 .pluck("id")
             )
@@ -214,8 +207,6 @@ class HasPermissions(MasonitePermission):
         if len(data) > 0:
             query.bulk_create(data)
 
-        self._update_permissions_cache(self._permission_query, self.id)
-
     def has_permission_to(self, permission):
         if type(permission) != str:
             raise PermissionException("permission must be a string!")
@@ -230,9 +221,7 @@ class HasPermissions(MasonitePermission):
         else:
             slugs = list(args)
 
-        permissions = [permission.get("slug") for permission in self.permissions()]
-
-        return any([slug in permissions for slug in slugs])
+        return self._permission_query().where_in("permissions.slug", slugs).count() > 0
 
     def has_all_permissions(self, *args):
         """Check if user has all of the permissions"""
@@ -243,9 +232,7 @@ class HasPermissions(MasonitePermission):
         else:
             slugs = list(args)
 
-        permissions = [permission.get("slug") for permission in self.permissions()]
-
-        return set(slugs).issubset(set(permissions))
+        return self._permission_query().where_in("permissions.slug", slugs).count() == len(slugs)
 
     def can_(self, permissions):
         """Check if user has a permission"""

@@ -74,14 +74,6 @@ class User(Model, SoftDeletesMixin, Authenticates, HasRoles, HasPermissions):
     __auth__ = "email"
 ```
 
-> Caching roles permissions related data to cache makes faster access to the data.
-
-It is recommended to use any cache driver. By default the cache is disabled in `config/masonite_permission.py` config file. You can enable or disable it depending upon your needs. All the cache related actions are handled automatically.
-
-```python
-ENABLE_CACHE = False
-```
-
 ## Usage
 
 #### Working with Role
