@@ -1,7 +1,7 @@
 # Masonite Permission
 
 <p align="center">
-    <img src="https://banners.beyondco.de/Masonite Permission.png?theme=light&packageManager=pip+install&packageName=masonite-permission&pattern=topography&style=style_1&description=Associate users with roles and permissions&md=1&showWatermark=1&fontSize=100px&images=https%3A%2F%2Fgblobscdn.gitbook.com%2Fspaces%2F-L9uc-9XAlqhXkBwrLMA%2Favatar.png">
+    <img src="https://banners.beyondco.de/Masonite%20Permission.png?theme=light&packageManager=pip+install&packageName=masonite-permission&pattern=charlieBrown&style=style_2&description=Associate+users+with+roles+and+permissions.&md=1&showWatermark=1&fontSize=100px&images=adjustments&widths=50&heights=50">
 </p>
 
 <p align="center">

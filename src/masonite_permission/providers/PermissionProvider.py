@@ -9,7 +9,6 @@ class PermissionProvider(PackageProvider):
         (
             self.root("masonite_permission")
             .name("masonite-permission")
-            .config("config/masonite_permission.py", publish=True)
             .migrations("migrations/create_permissions_table.py")
         )
 
