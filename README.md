@@ -6,14 +6,14 @@
 
 <p align="center">
   
-  <img alt="GitHub Workflow Status" src="https://github.com/yubarajshrestha/masonite-permission/actions/workflows/pythonapp.yml/badge.svg">
+  <img alt="GitHub Workflow Status" src="https://github.com/py-package/masonite-permission/actions/workflows/pythonapp.yml/badge.svg">
 
   <img alt="PyPI" src="https://img.shields.io/pypi/v/masonite-permission">
-  <img alt="issues" src="https://img.shields.io/github/issues/yubarajshrestha/masonite-permission">
+  <img alt="issues" src="https://img.shields.io/github/issues/py-package/masonite-permission">
   <img src="https://img.shields.io/badge/python-3.7+-blue.svg" alt="Python Version">
-  <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/yubarajshrestha/masonite-permission">
-  <img alt="License" src="https://img.shields.io/github/license/yubarajshrestha/masonite-permission">
-  <a href="https://github.com/yubarajshrestha/masonite-permission/stargazers"><img alt="star" src="https://img.shields.io/github/stars/yubarajshrestha/masonite-permission" /></a>
+  <img alt="GitHub release (latest by date including pre-releases)" src="https://img.shields.io/github/v/release/py-package/masonite-permission">
+  <img alt="License" src="https://img.shields.io/github/license/py-package/masonite-permission">
+  <a href="https://github.com/py-package/masonite-permission/stargazers"><img alt="star" src="https://img.shields.io/github/stars/py-package/masonite-permission" /></a>
   <img alt="downloads" src="https://img.shields.io/pypi/dm/masonite-permission?style=flat" />
   <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
