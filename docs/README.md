@@ -330,9 +330,6 @@ Checking if user can do all of the {permissions}
 {% endif %}
 ```
 
-## Contributing
-
-Please read the [Contributing Documentation](CONTRIBUTING.md) here.
 
 ## Maintainers
 
