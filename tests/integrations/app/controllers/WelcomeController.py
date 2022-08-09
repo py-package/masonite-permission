@@ -2,7 +2,6 @@
 from masonite.views import View
 from masonite.controllers import Controller
 
-from src.masonite_permission.models.role import Role
 from tests.integrations.app.models.User import User
 
 
@@ -11,9 +10,6 @@ class WelcomeController(Controller):
 
     def show(self, view: View):
         user = User.first()
-        role = Role.where("slug", "reporter").first()
-        user.sync_roles(["admin", 2, "editor", role])
-
         return view.render("welcome", {"user": user})
 
     def test(self):
