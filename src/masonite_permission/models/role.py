@@ -41,7 +41,7 @@ class Role(Model):
             ).where("permissionable_type", self.get_table_name()).delete()
             return
 
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             args = args[0]
 
         for permission in args:

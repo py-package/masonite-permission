@@ -16,7 +16,7 @@ class HasRoles:
 
     def has_role_of(self, role):
         """Check if user has a role"""
-        if type(role) != str:
+        if type(role) is not str:
             raise PermissionException("role must be a string!")
         return self.roles().where("slug", role).count() > 0
 
@@ -24,7 +24,7 @@ class HasRoles:
         """Check if user has any of the roles"""
 
         slugs = []
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             slugs = args[0]
         else:
             slugs = list(args)
@@ -35,7 +35,7 @@ class HasRoles:
         """Check if user has all of the roles"""
 
         slugs = []
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             slugs = args[0]
         else:
             slugs = list(args)
@@ -52,7 +52,7 @@ class HasRoles:
             QueryBuilder().table("role_user").where("user_id", self.id).delete()
             return
 
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             args = args[0]
 
         for role in args:
@@ -139,7 +139,7 @@ class HasRoles:
 
     def is_(self, roles):
         """Check if user has a role"""
-        if type(roles) != str:
+        if type(roles) is not str:
             raise PermissionException("role must be a string!")
 
         action = "all"  # can be all or any

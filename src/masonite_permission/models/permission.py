@@ -36,7 +36,7 @@ class Permission(Model):
             ).where("permission_id", self.id).delete()
             return
 
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             args = args[0]
 
         for role in args:
@@ -77,11 +77,11 @@ class Permission(Model):
         """
         from ..models.role import Role
 
-        if type(role) == str:
+        if type(role) is str:
             role = Role.where("slug", role).first()
             if not role:
                 raise PermissionException(f"Role: {role} does not exist!")
-        elif type(role) == int:
+        elif type(role) is int:
             role = Role.find(role)
             if not role:
                 raise PermissionException(f"Role: with id {role} does not exist!")
@@ -112,11 +112,11 @@ class Permission(Model):
         """
         from ..models.role import Role
 
-        if type(role) == str:
+        if type(role) is str:
             role = Role.where("slug", role).first()
             if not role:
                 raise PermissionException(f"Role: {role} does not exist!")
-        elif type(role) == int:
+        elif type(role) is int:
             role = Role.find(role)
             if not role:
                 raise PermissionException(f"Role: with id {role} does not exist!")

@@ -103,7 +103,7 @@ class HasPermissions:
         """Give permission to related model"""
         from ..models.permission import Permission
 
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             args = args[0]
 
         permissions = Permission.where_in("slug", args).get()
@@ -132,7 +132,7 @@ class HasPermissions:
         """Revoke permission from related model"""
         from ..models.permission import Permission
 
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             args = args[0]
 
         permissions = Permission.where_in("slug", args).get()
@@ -158,7 +158,7 @@ class HasPermissions:
             ).where("permissionable_type", self.get_table_name()).delete()
             return
 
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             args = args[0]
 
         for permission in args:
@@ -208,7 +208,7 @@ class HasPermissions:
             query.bulk_create(data)
 
     def has_permission_to(self, permission):
-        if type(permission) != str:
+        if type(permission) is not str:
             raise PermissionException("permission must be a string!")
         return self._permission_query().where("permissions.slug", permission).count() > 0
 
@@ -216,7 +216,7 @@ class HasPermissions:
         """Check if user has any of the permissions"""
 
         slugs = []
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             slugs = args[0]
         else:
             slugs = list(args)
@@ -227,7 +227,7 @@ class HasPermissions:
         """Check if user has all of the permissions"""
 
         slugs = []
-        if type(args[0]) == list:
+        if type(args[0]) is list:
             slugs = args[0]
         else:
             slugs = list(args)
@@ -236,7 +236,7 @@ class HasPermissions:
 
     def can_(self, permissions):
         """Check if user has a permission"""
-        if type(permissions) != str:
+        if type(permissions) is not str:
             raise PermissionException("permission must be a string!")
 
         action = "all"  # can be all or any
